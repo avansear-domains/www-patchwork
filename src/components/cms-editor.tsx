@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useState } from "react";
 import { deleteWork, saveWork } from "@/app/cms/actions";
-import { GRID_COLS, SLOT_COUNT, type ImageItem, type Work } from "@/lib/types";
+import { GRID_COLS, MUSIX_SLOT, SLOT_COUNT, type ImageItem, type Work } from "@/lib/types";
 
 const input = "w-full border-2 border-fg bg-bg px-2 py-1";
 const btn = "border-2 border-fg px-3 py-1 cursor-pointer";
@@ -22,6 +22,13 @@ function SlotGrid({
   return (
     <div className={`grid gap-1 ${size}`} style={{ gridTemplateColumns: `repeat(${GRID_COLS}, minmax(0, 1fr))` }}>
       {Array.from({ length: SLOT_COUNT }, (_, slot) => {
+        if (slot === MUSIX_SLOT) {
+          return (
+            <div key={slot} className="grid aspect-square place-items-center border-2 border-fg/30 text-xs opacity-60" title="Reserved for the song of the week">
+              ♪ song
+            </div>
+          );
+        }
         const w = works.find((x) => x.slot === slot);
         const selected = slot === value;
         return (
@@ -243,6 +250,7 @@ function WorkForm({ works, work, slot: initialSlot }: { works: Work[]; work?: Wo
 
 export function CmsEditor({ works, logout }: { works: Work[]; logout: () => Promise<void> }) {
   const [slot, setSlot] = useState<number | null>(null);
+
   const work = slot === null ? undefined : works.find((w) => w.slot === slot);
 
   return (

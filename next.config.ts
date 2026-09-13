@@ -10,7 +10,10 @@ const nextConfig: NextConfig = {
     serverActions: { bodySizeLimit: "500mb" },
   },
   images: {
-    remotePatterns: r2Host ? [{ protocol: "https", hostname: r2Host }] : [],
+    remotePatterns: [
+      ...(r2Host ? [{ protocol: "https" as const, hostname: r2Host }] : []),
+      { protocol: "https", hostname: "i.scdn.co" }, // Spotify album art
+    ],
   },
 };
 

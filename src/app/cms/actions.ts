@@ -4,7 +4,7 @@ import { basename } from "node:path";
 import { revalidatePath } from "next/cache";
 import { requireAuth } from "@/lib/auth";
 import { deleteKeys, listKeys, upload } from "@/lib/r2";
-import { SLOT_COUNT, type ImageItem, type Media, type Work } from "@/lib/types";
+import { WORK_SLOTS, type ImageItem, type Media, type Work } from "@/lib/types";
 import { getWorks, writeWorks } from "@/lib/works";
 
 
@@ -35,7 +35,7 @@ export async function saveWork(formData: FormData) {
     for (let n = 2; works.some((w) => w.id === id); n++) id = `${base}-${n}`;
   }
 
-  const slot = Math.min(Math.max(Number(formData.get("slot")) || 0, 0), SLOT_COUNT - 1);
+  const slot = Math.min(Math.max(Number(formData.get("slot")) || 0, 0), WORK_SLOTS - 1);
   const type = formData.get("type") === "audio" ? "audio" : "images";
   const link = String(formData.get("link") ?? "").trim();
   const description = String(formData.get("description") ?? "").trim();
@@ -92,7 +92,7 @@ export async function saveWork(formData: FormData) {
   const other = works.find((w) => w.slot === slot && w.id !== id);
   if (other) {
     const used = new Set(works.filter((w) => w.id !== id).map((w) => w.slot));
-    other.slot = existing?.slot ?? [...Array(SLOT_COUNT).keys()].find((s) => !used.has(s) && s !== slot) ?? other.slot;
+    other.slot = existing?.slot ?? [...Array(WORK_SLOTS).keys()].find((s) => !used.has(s) && s !== slot) ?? other.slot;
   }
 
   const work: Work = { id, title, slot, thumbnail, media, ...(link ? { link } : {}), ...(description ? { description } : {}) };
@@ -108,3 +108,4 @@ export async function deleteWork(formData: FormData) {
   await writeWorks((await getWorks()).filter((w) => w.id !== id));
   revalidate();
 }
+

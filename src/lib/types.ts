@@ -1,6 +1,8 @@
 export const GRID_COLS = 4;
 export const GRID_ROWS = 2;
 export const SLOT_COUNT = GRID_COLS * GRID_ROWS;
+export const MUSIX_SLOT = SLOT_COUNT - 1; // bottom-right is always the song square
+export const WORK_SLOTS = MUSIX_SLOT; // works may use slots 0..WORK_SLOTS-1
 
 export type ImageItem = { src: string; caption?: string };
 
