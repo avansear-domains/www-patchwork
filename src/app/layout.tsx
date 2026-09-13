@@ -9,16 +9,42 @@ const geist = Geist({
   subsets: ["latin"],
 });
 
+const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://avansear.com";
+
 export const metadata: Metadata = {
+  metadataBase: new URL(baseUrl),
   title: "avan",
   description: "say hi :)",
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "32x32", type: "image/x-icon" },
+      { url: "/favi.png", sizes: "any" },
+    ],
+    shortcut: "/favicon.ico",
+    apple: "/favi.png",
+  },
   openGraph: {
     title: "i'm avan",
     description:
       "high functioning insomniac. 20 y/o weirdo who does things based on instincts and intuition.",
     siteName: "avan's portfolio",
+    url: baseUrl,
     locale: "en_US",
     type: "website",
+    images: [
+      {
+        url: `${baseUrl}/og?title=${encodeURIComponent("i'm avan")}&v=2`,
+        width: 1200,
+        height: 630,
+        alt: "avan's portfolio",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "i'm avan",
+    description:
+      "high functioning insomniac. 20 y/o weirdo who does things based on instincts and intuition.",
   },
   robots: {
     index: true,
