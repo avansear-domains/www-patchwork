@@ -53,9 +53,9 @@ export function WorkGrid({ works }: { works: Work[] }) {
             </button>
           </div>
           {active.media.type === "images" ? (
-            <ImageCarousel srcs={active.media.srcs} title={active.title} />
+            <ImageCarousel items={active.media.items} title={active.title} description={active.description} />
           ) : (
-            <AudioPlayer src={active.media.src} cover={active.media.cover} title={active.title} />
+            <AudioPlayer src={active.media.src} cover={active.media.cover} title={active.title} description={active.description} />
           )}
         </div>
       )}

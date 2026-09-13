@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useState } from "react";
 import { deleteWork, saveWork } from "@/app/cms/actions";
-import { GRID_COLS, SLOT_COUNT, type Work } from "@/lib/types";
+import { GRID_COLS, SLOT_COUNT, type ImageItem, type Work } from "@/lib/types";
 
 const input = "w-full border-2 border-fg bg-bg px-2 py-1";
 const btn = "border-2 border-fg px-3 py-1 cursor-pointer";
@@ -41,7 +41,7 @@ function SlotGrid({
   );
 }
 
-function FileList({ label, items, onChange }: { label: string; items: string[]; onChange: (next: string[]) => void }) {
+function FileList({ label, items, onChange, captionsDisabled }: { label: string; items: ImageItem[]; onChange: (next: ImageItem[]) => void; captionsDisabled?: boolean }) {
   const [selected, setSelected] = useState<number | null>(null);
 
   const move = (i: number, d: -1 | 1) => {
@@ -66,16 +66,18 @@ function FileList({ label, items, onChange }: { label: string; items: string[]; 
   };
 
   return (
-    <div className="flex flex-col gap-1">
+    <div
+      className="flex flex-col gap-1"
+      onBlur={(e) => { if (!e.currentTarget.contains(e.relatedTarget)) setSelected(null); }}
+    >
       <ul
         role="listbox"
         aria-label={`${label}s`}
         tabIndex={0}
         onKeyDown={onKeyDown}
-        onBlur={(e) => { if (!e.currentTarget.contains(e.relatedTarget)) setSelected(null); }}
         className="flex flex-wrap gap-2 outline-none"
       >
-        {items.map((src, i) => {
+        {items.map(({ src, caption }, i) => {
           const isSel = i === selected;
           return (
             <li
@@ -86,7 +88,7 @@ function FileList({ label, items, onChange }: { label: string; items: string[]; 
               className={`relative size-20 cursor-pointer border-fg transition-[border-width] ${isSel ? "border-[6px]" : "border-2"}`}
             >
               <Image src={src} alt={`${label} ${i + 1}`} fill sizes="80px" className="object-cover" />
-              <span className="absolute left-0 top-0 bg-bg/80 px-1 text-xs">{i + 1}</span>
+              <span className="absolute left-0 top-0 bg-bg/80 px-1 text-xs">{i + 1}{caption ? " ✎" : ""}</span>
               <button
                 type="button"
                 aria-label="Remove"
@@ -102,6 +104,21 @@ function FileList({ label, items, onChange }: { label: string; items: string[]; 
       {items.length > 0 && (
         <span className="text-xs opacity-60">Click an image to select it, then ← → to move, Delete to remove.</span>
       )}
+      {selected !== null && items[selected] && captionsDisabled && (
+        <span className="text-xs opacity-60">Per-image captions are off while the work has a description.</span>
+      )}
+      {selected !== null && items[selected] && !captionsDisabled && (
+        <label className="flex flex-col gap-1">
+          <span>Caption for image {selected + 1} <span className="opacity-60">(optional)</span></span>
+          <textarea
+            rows={2}
+            value={items[selected].caption ?? ""}
+            onChange={(e) => onChange(items.map((it, k) => (k === selected ? { ...it, caption: e.target.value } : it)))}
+            onKeyDown={(e) => e.stopPropagation()}
+            className={input}
+          />
+        </label>
+      )}
     </div>
   );
 }
@@ -109,10 +126,12 @@ function FileList({ label, items, onChange }: { label: string; items: string[]; 
 function WorkForm({ works, work, slot: initialSlot }: { works: Work[]; work?: Work; slot: number }) {
   const [slot, setSlot] = useState(initialSlot);
   const [type, setType] = useState<"images" | "audio">(work?.media.type ?? "images");
-  const [images, setImages] = useState(work?.media.type === "images" ? work.media.srcs : []);
+  const [images, setImages] = useState<ImageItem[]>(work?.media.type === "images" ? work.media.items : []);
   const [audio, setAudio] = useState(work?.media.type === "audio" ? work.media.src : "");
   const [cover, setCover] = useState(work?.media.type === "audio" ? (work.media.cover ?? "") : "");
   const [thumb, setThumb] = useState(work?.thumbnail ?? "");
+  const [description, setDescription] = useState(work?.description ?? "");
+  const hasCaptions = images.some((i) => i.caption);
 
   return (
     <form action={saveWork} className="flex flex-col gap-5">
@@ -130,6 +149,16 @@ function WorkForm({ works, work, slot: initialSlot }: { works: Work[]; work?: Wo
       <label className="flex flex-col gap-1">
         <span>Link <span className="opacity-60">(optional — e.g. https://avansear.com/unsplash)</span></span>
         <input name="link" type="url" defaultValue={work?.link ?? ""} className={input} />
+      </label>
+
+      <label className="flex flex-col gap-1">
+        <span>
+          Description <span className="opacity-60">(optional — shown for the whole work; replaces per-image captions)</span>
+        </span>
+        <textarea name="description" rows={3} value={description} onChange={(e) => setDescription(e.target.value)} className={input} />
+        {description && hasCaptions && (
+          <span className="text-xs opacity-60">Saving with a description will discard the existing per-image captions.</span>
+        )}
       </label>
 
       <div className="flex flex-col gap-1">
@@ -164,8 +193,13 @@ function WorkForm({ works, work, slot: initialSlot }: { works: Work[]; work?: Wo
       {type === "images" ? (
         <div className="flex flex-col gap-1">
           <span>Images <span className="opacity-60">(in order)</span></span>
-          {images.map((src) => <input key={src} type="hidden" name="existingImages" value={src} />)}
-          <FileList label="image" items={images} onChange={setImages} />
+          {images.map(({ src, caption }) => (
+            <span key={src}>
+              <input type="hidden" name="existingImages" value={src} />
+              <input type="hidden" name="existingCaptions" value={caption ?? ""} />
+            </span>
+          ))}
+          <FileList label="image" items={images} onChange={setImages} captionsDisabled={description.trim().length > 0} />
           <input type="file" name="newImages" accept="image/*" multiple />
         </div>
       ) : (

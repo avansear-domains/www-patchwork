@@ -1,6 +1,6 @@
 import Image from "next/image";
 
-export function AudioPlayer({ src, cover, title }: { src: string; cover?: string; title: string }) {
+export function AudioPlayer({ src, cover, title, description }: { src: string; cover?: string; title: string; description?: string }) {
   return (
     <div className="flex h-[40vh] flex-col items-center justify-center gap-4">
       {cover && (
@@ -9,6 +9,7 @@ export function AudioPlayer({ src, cover, title }: { src: string; cover?: string
         </div>
       )}
       <span className="font-medium">{title}</span>
+      {description && <p className="max-w-md text-center text-sm opacity-80">{description}</p>}
       <audio controls preload="metadata" src={src} className="w-full max-w-md" />
     </div>
   );
