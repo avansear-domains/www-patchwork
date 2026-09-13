@@ -79,24 +79,10 @@ async function findYoutubeId(songName: string, artist: string) {
 
 const trackUrl = (id: string | null) => (id ? `https://open.spotify.com/track/${id}` : null);
 
-// Pull new playlist tracks at most once an hour per server process (the homepage is ISR'd hourly anyway).
-let lastSync = 0;
-async function maybeSync() {
-  if (Date.now() - lastSync < 60 * 60 * 1000) return;
-  lastSync = Date.now();
-  try {
-    const log = await syncSongs();
-    if (log.some((l) => l.startsWith("Added "))) console.log("musix sync:", log.join(" | "));
-  } catch (e) {
-    console.error("musix sync:", e);
-  }
-}
-
 export async function getMusix(): Promise<{ now: NowPlaying | null; songs: Song[] }> {
   const db = supabase();
   if (!db) return { now: null, songs: [] };
   try {
-    await maybeSync();
     const { data: rows } = await db
       .from("musix_songs")
       .select("week, song_name, artist, youtube_id, spotify_track_id")
@@ -122,6 +108,22 @@ export async function getMusix(): Promise<{ now: NowPlaying | null; songs: Song[
     console.error("musix:", e);
     return { now: null, songs: [] };
   }
+}
+
+// Cap on playlist syncs, same as the old site: 50 per rolling 24h, tracked in `musix_rate_limit`.
+const SYNC_MAX = 50;
+const SYNC_WINDOW_MS = 24 * 60 * 60 * 1000;
+
+/** Records a sync attempt; returns false (and records nothing) when the cap is hit. */
+export async function takeSyncSlot(): Promise<boolean> {
+  const db = supabase();
+  if (!db) return false;
+  const cutoff = new Date(Date.now() - SYNC_WINDOW_MS).toISOString();
+  await db.from("musix_rate_limit").delete().lt("executed_at", cutoff);
+  const { count } = await db.from("musix_rate_limit").select("*", { count: "exact", head: true }).gte("executed_at", cutoff);
+  if ((count ?? 0) >= SYNC_MAX) return false;
+  await db.from("musix_rate_limit").insert({ executed_at: new Date().toISOString() });
+  return true;
 }
 
 /** Pull new tracks from the Spotify playlist into musix_songs. Returns a log. */
