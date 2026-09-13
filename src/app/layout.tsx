@@ -72,6 +72,13 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <head>
         <style dangerouslySetInnerHTML={{ __html: themeCss }} />
         <script dangerouslySetInnerHTML={{ __html: themeInit }} />
+        {process.env.RYBBIT_SITE_ID && (
+          <script
+            src="https://app.rybbit.io/api/script.js"
+            data-site-id={process.env.RYBBIT_SITE_ID}
+            defer
+          />
+        )}
       </head>
       <body className="min-h-full flex flex-col font-sans" suppressHydrationWarning>
         <Navbar />
