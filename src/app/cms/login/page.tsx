@@ -10,7 +10,7 @@ export default async function LoginPage({ searchParams }: PageProps<"/cms/login"
   const { error } = await searchParams;
 
   return (
-    <main className="mx-auto flex w-full max-w-sm flex-col gap-4 p-6">
+    <main className="page flex flex-col gap-4 py-6">
       <h1 className="text-2xl font-semibold">cms</h1>
       <form action={login} className="flex flex-col gap-3">
         <input

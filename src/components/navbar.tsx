@@ -3,7 +3,7 @@ import { ThemeSwitcher } from "@/components/theme-switcher";
 
 export function Navbar() {
   return (
-    <nav className="flex items-center justify-between px-6 py-4">
+    <nav className="page flex items-center justify-between py-4">
       <Link href="/" className="font-medium">
         avansear
       </Link>

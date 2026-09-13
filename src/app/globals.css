@@ -11,3 +11,8 @@ body {
   background-color: var(--bg-color);
   color: var(--fg-color);
 }
+
+/* Shared page column: nav, intro, grid and cms all align to this. */
+@utility page {
+  @apply mx-auto w-full max-w-6xl px-6;
+}

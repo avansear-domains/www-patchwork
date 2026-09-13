@@ -15,7 +15,7 @@ export function WorkGrid({ works }: { works: Work[] }) {
   const active = works.find((w) => w.id === selected);
 
   return (
-    <section className="px-6">
+    <section className="page">
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
         {Array.from({ length: SLOT_COUNT }, (_, slot) => {
           const w = works.find((x) => x.slot === slot);

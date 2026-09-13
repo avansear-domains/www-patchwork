@@ -246,7 +246,7 @@ export function CmsEditor({ works, logout }: { works: Work[]; logout: () => Prom
   const work = slot === null ? undefined : works.find((w) => w.slot === slot);
 
   return (
-    <main className="mx-auto flex max-w-5xl flex-col gap-8 p-6">
+    <main className="page flex flex-col gap-8 py-6">
       <header className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">cms</h1>
         <form action={logout}>

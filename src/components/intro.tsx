@@ -1,6 +1,6 @@
 export function Intro() {
   return (
-    <section className="px-6 py-16">
+    <section className="page py-16">
       <h1 className="group text-2xl font-semibold tracking-tighter">
         <span>i&apos;m avan</span>
         <span className="opacity-0 transition-opacity duration-300 ease-out group-hover:opacity-100">
