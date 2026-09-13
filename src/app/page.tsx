@@ -1,3 +1,4 @@
+import { Footer } from "@/components/footer";
 import { Intro } from "@/components/intro";
 import { WorkGrid } from "@/components/work-grid";
 import { getMusix } from "@/lib/musix";
@@ -12,6 +13,7 @@ export default async function Home() {
     <>
       <Intro />
       <WorkGrid works={works} musix={musix} />
+      <Footer />
     </>
   );
 }
