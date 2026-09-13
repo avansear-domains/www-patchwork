@@ -9,7 +9,7 @@ import {
 
 function env(name: string) {
   const v = process.env[name];
-  if (!v) throw new Error(`Missing ${name} — copy .env.example to .env.local and fill it in`);
+  if (!v) throw new Error(`Missing env var ${name} (set it in .env.local locally, or in the Vercel project settings)`);
   return v;
 }
 
