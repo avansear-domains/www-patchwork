@@ -1,0 +1,13 @@
+@import "tailwindcss";
+
+/* --bg-color / --fg-color are defined per theme from src/lib/themes.ts */
+@theme inline {
+  --font-sans: var(--font-geist-sans);
+  --color-bg: var(--bg-color);
+  --color-fg: var(--fg-color);
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--fg-color);
+}
